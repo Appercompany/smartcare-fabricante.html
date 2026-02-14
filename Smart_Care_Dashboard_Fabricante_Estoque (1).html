@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Care — Painel do Fabricante + Estoque</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg-body:#0b0f19;--bg-sidebar:#0f1423;--bg-card:#1a2332;--bg-card-alt:#1e293b;--bg-hover:#243044;--accent-blue:#3b82f6;--accent-cyan:#06b6d4;--accent-green:#10b981;--accent-emerald:#059669;--accent-red:#ef4444;--accent-amber:#f59e0b;--accent-purple:#8b5cf6;--accent-pink:#ec4899;--accent-orange:#f97316;--accent-lime:#84cc16;--text-primary:#f1f5f9;--text-secondary:#94a3b8;--text-muted:#64748b;--text-dim:#475569;--border:#1e293b;--border-light:#334155;--shadow:0 4px 24px rgba(0,0,0,0.3);--radius:14px;--radius-sm:10px;--radius-xs:6px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-body);color:var(--text-primary);overflow-x:hidden;min-height:100vh}
+.app-layout{display:grid;grid-template-columns:272px 1fr;min-height:100vh}
+@media(max-width:1024px){.app-layout{grid-template-columns:1fr}.sidebar{display:none}}
+.sidebar{background:var(--bg-sidebar);border-right:1px solid var(--border);padding:24px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-brand{display:flex;align-items:center;gap:12px;padding:0 8px 20px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.sidebar-brand-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent-emerald),var(--accent-cyan));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.sidebar-brand-text{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--accent-green);letter-spacing:1.5px;text-transform:uppercase}
+.sidebar-brand-sub{font-size:10px;color:var(--text-muted);margin-top:2px}
+.sidebar-section-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);padding:0 12px;margin-bottom:8px;margin-top:20px}
+.sidebar-section-label:first-of-type{margin-top:0}
+.sidebar-nav{list-style:none}
+.sidebar-nav li a{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--radius-sm);color:var(--text-muted);text-decoration:none;font-size:13px;font-weight:500;transition:all .2s;margin-bottom:2px;cursor:pointer}
+.sidebar-nav li a:hover{background:var(--bg-hover);color:var(--text-primary)}
+.sidebar-nav li a.active{background:rgba(16,185,129,.12);color:var(--accent-green);font-weight:600}
+.sidebar-nav li a .nav-icon{font-size:18px;width:22px;text-align:center}
+.nav-badge{margin-left:auto;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;font-family:'Space Mono',monospace}
+.nav-badge.red{background:rgba(239,68,68,.2);color:var(--accent-red)}.nav-badge.amber{background:rgba(245,158,11,.2);color:var(--accent-amber)}.nav-badge.green{background:rgba(16,185,129,.2);color:var(--accent-green)}.nav-badge.blue{background:rgba(59,130,246,.2);color:var(--accent-blue)}.nav-badge.purple{background:rgba(139,92,246,.2);color:var(--accent-purple)}.nav-badge.orange{background:rgba(249,115,22,.2);color:var(--accent-orange)}
+.sidebar-footer{margin-top:auto;padding:16px 8px 0;border-top:1px solid var(--border)}
+.sidebar-user{display:flex;align-items:center;gap:12px;padding:8px}
+.sidebar-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--accent-green),var(--accent-emerald));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.sidebar-user-name{font-size:13px;font-weight:600}.sidebar-user-role{font-size:11px;color:var(--text-muted)}
+.main-content{padding:28px 32px;overflow-y:auto}
+@media(max-width:768px){.main-content{padding:20px 16px}}
+.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;gap:16px;flex-wrap:wrap}
+.top-bar-left h1{font-size:22px;font-weight:800;margin-bottom:4px}.top-bar-left p{font-size:13px;color:var(--text-muted)}
+.top-bar-right{display:flex;align-items:center;gap:10px}
+.top-btn{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .2s;text-decoration:none;font-family:'Plus Jakarta Sans',sans-serif}
+.top-btn.primary{background:var(--accent-green);color:#fff}.top-btn.primary:hover{background:var(--accent-emerald);transform:translateY(-1px)}
+.top-btn.outline{background:transparent;color:var(--text-secondary);border:1px solid var(--border)}.top-btn.outline:hover{border-color:var(--accent-green);color:var(--accent-green)}
+.revenue-banner{background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(6,182,212,.08));border:1px solid rgba(16,185,129,.15);border-radius:var(--radius);padding:24px 28px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.revenue-banner-left h3{font-size:14px;font-weight:700;color:var(--accent-green);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;font-family:'Space Mono',monospace}
+.revenue-banner-left p{font-size:13px;color:var(--text-secondary)}
+.revenue-banner-values{display:flex;gap:32px;flex-wrap:wrap}.revenue-item{text-align:center}
+.revenue-item-value{font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--accent-green)}
+.revenue-item-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:24px}
+.kpi-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;position:relative;overflow:hidden;transition:all .3s}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%}
+.kpi-card.blue::before{background:var(--accent-blue)}.kpi-card.green::before{background:var(--accent-green)}.kpi-card.amber::before{background:var(--accent-amber)}.kpi-card.red::before{background:var(--accent-red)}.kpi-card.purple::before{background:var(--accent-purple)}.kpi-card.cyan::before{background:var(--accent-cyan)}.kpi-card.orange::before{background:var(--accent-orange)}.kpi-card.lime::before{background:var(--accent-lime)}
+.kpi-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.kpi-label{font-size:11px;color:var(--text-muted);font-weight:500;text-transform:uppercase;letter-spacing:.5px}.kpi-icon{font-size:18px}
+.kpi-value{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-value.blue{color:var(--accent-blue)}.kpi-value.green{color:var(--accent-green)}.kpi-value.amber{color:var(--accent-amber)}.kpi-value.red{color:var(--accent-red)}.kpi-value.purple{color:var(--accent-purple)}.kpi-value.cyan{color:var(--accent-cyan)}.kpi-value.orange{color:var(--accent-orange)}.kpi-value.lime{color:var(--accent-lime)}
+.kpi-sub{font-size:11px;color:var(--text-dim)}
+.kpi-trend{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:100px;margin-top:6px}
+.kpi-trend.up{background:rgba(16,185,129,.15);color:var(--accent-green)}.kpi-trend.down{background:rgba(239,68,68,.15);color:var(--accent-red)}.kpi-trend.warn{background:rgba(245,158,11,.15);color:var(--accent-amber)}
+.panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:20px;overflow:hidden}
+.panel-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:12px}
+.panel-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:10px}.panel-title-icon{font-size:18px}
+.panel-actions{display:flex;gap:8px;flex-wrap:wrap}
+.panel-btn{padding:6px 14px;font-size:12px;font-weight:600;border-radius:var(--radius-xs);border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif}
+.panel-btn:hover{border-color:var(--accent-green);color:var(--accent-green)}.panel-btn.active{background:rgba(16,185,129,.12);border-color:var(--accent-green);color:var(--accent-green)}
+.table-wrapper{overflow-x:auto}.data-table{width:100%;border-collapse:collapse}
+.data-table th{text-align:left;padding:12px 18px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);background:rgba(0,0,0,.2);white-space:nowrap}
+.data-table td{padding:13px 18px;font-size:13px;border-bottom:1px solid var(--border);white-space:nowrap}
+.data-table tr:last-child td{border-bottom:none}.data-table tr:hover td{background:rgba(16,185,129,.03)}
+.status-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;font-size:11px;font-weight:700}
+.status-badge.ok{background:rgba(16,185,129,.15);color:var(--accent-green)}.status-badge.warning{background:rgba(245,158,11,.15);color:var(--accent-amber)}.status-badge.danger{background:rgba(239,68,68,.15);color:var(--accent-red)}.status-badge.info{background:rgba(59,130,246,.15);color:var(--accent-blue)}.status-badge.purple{background:rgba(139,92,246,.15);color:var(--accent-purple)}.status-badge.orange{background:rgba(249,115,22,.15);color:var(--accent-orange)}.status-badge.cyan{background:rgba(6,182,212,.15);color:var(--accent-cyan)}
+.status-dot{width:6px;height:6px;border-radius:50%}.status-dot.green{background:var(--accent-green)}.status-dot.amber{background:var(--accent-amber)}.status-dot.red{background:var(--accent-red)}
+.action-link{font-size:12px;color:var(--accent-green);text-decoration:none;font-weight:600;cursor:pointer}.action-link:hover{color:var(--accent-cyan)}
+.client-name{font-weight:600;color:var(--text-primary)}.client-cnpj{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:2px}.client-city{font-size:12px;color:var(--text-secondary)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+.pipeline-stages{display:flex;gap:2px;padding:20px 24px}
+.pipeline-stage{flex:1;text-align:center;padding:16px 8px;border-radius:var(--radius-sm);background:var(--bg-card-alt);transition:all .3s;cursor:pointer}
+.pipeline-stage:hover{transform:translateY(-2px)}
+.pipeline-stage-value{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;line-height:1;margin-bottom:6px}
+.pipeline-stage-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+.pipeline-stage-revenue{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;margin-top:8px}
+.opp-list{padding:8px 16px}
+.opp-item{display:flex;gap:14px;padding:14px 8px;border-bottom:1px solid var(--border);border-radius:var(--radius-xs);transition:background .2s;cursor:pointer}
+.opp-item:last-child{border-bottom:none}.opp-item:hover{background:var(--bg-hover)}
+.opp-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.opp-icon.amber{background:rgba(245,158,11,.15)}.opp-icon.red{background:rgba(239,68,68,.15)}.opp-icon.green{background:rgba(16,185,129,.15)}.opp-icon.blue{background:rgba(59,130,246,.15)}.opp-icon.purple{background:rgba(139,92,246,.15)}.opp-icon.orange{background:rgba(249,115,22,.15)}
+.opp-content{flex:1}.opp-title{font-size:13px;font-weight:700;margin-bottom:2px}.opp-desc{font-size:12px;color:var(--text-muted);line-height:1.5}
+.opp-value{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;margin-top:4px}.opp-value.green{color:var(--accent-green)}.opp-value.amber{color:var(--accent-amber)}.opp-value.red{color:var(--accent-red)}
+.alert-list{padding:8px 16px}
+.alert-item{display:flex;gap:12px;padding:12px 8px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:var(--radius-xs);transition:background .2s}
+.alert-item:last-child{border-bottom:none}.alert-item:hover{background:var(--bg-hover)}
+.alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px}.alert-dot.red{background:var(--accent-red)}.alert-dot.amber{background:var(--accent-amber)}.alert-dot.green{background:var(--accent-green)}.alert-dot.blue{background:var(--accent-blue)}
+.alert-content{flex:1}.alert-text{font-size:12px;color:var(--text-secondary);line-height:1.5}.alert-text strong{color:var(--text-primary)}.alert-time{font-size:11px;color:var(--text-dim);margin-top:3px}
+.bar-chart{display:flex;flex-direction:column;gap:10px;padding:20px 24px}.bar-row{display:flex;align-items:center;gap:12px}.bar-label{font-size:12px;color:var(--text-secondary);min-width:130px;text-align:right}
+.bar-track{flex:1;height:22px;background:rgba(255,255,255,.03);border-radius:var(--radius-xs);overflow:hidden}
+.bar-fill{height:100%;border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:flex-end;padding-right:10px;font-size:11px;font-weight:700;font-family:'Space Mono',monospace;color:#fff;transition:width 1.5s cubic-bezier(.4,0,.2,1)}
+.bar-fill.green{background:linear-gradient(90deg,rgba(16,185,129,.6),var(--accent-green))}.bar-fill.blue{background:linear-gradient(90deg,rgba(59,130,246,.6),var(--accent-blue))}.bar-fill.cyan{background:linear-gradient(90deg,rgba(6,182,212,.6),var(--accent-cyan))}.bar-fill.amber{background:linear-gradient(90deg,rgba(245,158,11,.6),var(--accent-amber))}.bar-fill.purple{background:linear-gradient(90deg,rgba(139,92,246,.6),var(--accent-purple))}.bar-fill.orange{background:linear-gradient(90deg,rgba(249,115,22,.6),var(--accent-orange))}.bar-fill.red{background:linear-gradient(90deg,rgba(239,68,68,.6),var(--accent-red))}
+.nps-display{display:flex;align-items:center;justify-content:center;gap:40px;padding:28px 24px}.nps-score{text-align:center}
+.nps-score-value{font-family:'Space Mono',monospace;font-size:56px;font-weight:700;line-height:1}.nps-score-label{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.nps-breakdown{display:flex;flex-direction:column;gap:12px}.nps-row{display:flex;align-items:center;gap:12px}.nps-category{font-size:12px;min-width:100px;text-align:right}
+.nps-bar-track{width:140px;height:8px;background:rgba(255,255,255,.05);border-radius:100px;overflow:hidden}.nps-bar-fill{height:100%;border-radius:100px}
+.nps-pct{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;min-width:40px}
+.stock-alert-banner{background:linear-gradient(135deg,rgba(239,68,68,.06),rgba(245,158,11,.06));border:1px solid rgba(239,68,68,.15);border-radius:var(--radius);padding:18px 24px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.stock-alert-icon{width:48px;height:48px;border-radius:12px;background:rgba(239,68,68,.15);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.stock-alert-text h4{font-size:14px;font-weight:700;color:var(--accent-red);margin-bottom:2px}.stock-alert-text p{font-size:13px;color:var(--text-secondary)}
+.stock-alert-action{margin-left:auto;padding:10px 20px;background:rgba(239,68,68,.15);color:var(--accent-red);border:1px solid rgba(239,68,68,.3);border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif}
+.stock-alert-action:hover{background:rgba(239,68,68,.25)}
+.stock-level-bar{display:flex;align-items:center;gap:8px}
+.stock-bar-track{width:80px;height:8px;background:rgba(255,255,255,.06);border-radius:100px;overflow:hidden}
+.stock-bar-fill{height:100%;border-radius:100px;transition:width 1s ease}
+.stock-qty{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;min-width:24px}
+.dvs-row{display:flex;align-items:center;gap:16px;padding:12px 24px;border-bottom:1px solid var(--border)}.dvs-row:last-child{border-bottom:none}
+.dvs-part-name{min-width:180px;font-size:13px;font-weight:600}.dvs-part-code{font-family:'Space Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:2px}
+.dvs-bars{flex:1;display:flex;flex-direction:column;gap:4px}.dvs-bar-row{display:flex;align-items:center;gap:8px}
+.dvs-bar-label{font-size:10px;color:var(--text-muted);min-width:60px;text-align:right}
+.dvs-bar-track{flex:1;height:14px;background:rgba(255,255,255,.03);border-radius:var(--radius-xs);overflow:hidden}
+.dvs-bar-fill{height:100%;border-radius:var(--radius-xs);display:flex;align-items:center;padding-left:8px;font-size:10px;font-weight:700;color:#fff;font-family:'Space Mono',monospace}
+.dvs-status{min-width:100px;text-align:right}
+.erp-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.5px;background:rgba(6,182,212,.1);color:var(--accent-cyan);border:1px solid rgba(6,182,212,.2)}
+.erp-dot{width:6px;height:6px;border-radius:50%;background:var(--accent-green);animation:pulse 2s infinite}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.animate-in{animation:fadeIn .5s ease both}.delay-1{animation-delay:.05s}.delay-2{animation-delay:.1s}.delay-3{animation-delay:.15s}.delay-4{animation-delay:.2s}.delay-5{animation-delay:.25s}.delay-6{animation-delay:.3s}
+.demo-watermark{position:fixed;bottom:16px;right:16px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);padding:8px 16px;border-radius:var(--radius-sm);font-size:11px;color:var(--accent-green);font-weight:600;z-index:100;backdrop-filter:blur(10px)}
+</style>
+</head>
+<body>
+<div class="demo-watermark">🏭 SMART CARE — Fabricante + Estoque (Protótipo)</div>
+<div class="app-layout">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+<div class="sidebar-brand"><div class="sidebar-brand-icon">🏭</div><div><div class="sidebar-brand-text">Smart Care</div><div class="sidebar-brand-sub">Painel do Fabricante</div></div></div>
+<div class="sidebar-section-label">Visão Geral</div>
+<ul class="sidebar-nav">
+<li><a class="active"><span class="nav-icon">📊</span> Dashboard</a></li>
+<li><a><span class="nav-icon">💰</span> Receita Recorrente <span class="nav-badge green">+23%</span></a></li>
+<li><a><span class="nav-icon">🏥</span> Clientes <span class="nav-badge blue">47</span></a></li>
+</ul>
+<div class="sidebar-section-label">Comercial</div>
+<ul class="sidebar-nav">
+<li><a><span class="nav-icon">🔧</span> Manutenções <span class="nav-badge amber">12</span></a></li>
+<li><a><span class="nav-icon">🛡️</span> Garantias <span class="nav-badge red">18</span></a></li>
+<li><a><span class="nav-icon">🔄</span> Recompra <span class="nav-badge purple">8</span></a></li>
+<li><a><span class="nav-icon">📝</span> Chamados <span class="nav-badge amber">5</span></a></li>
+</ul>
+<div class="sidebar-section-label">Estoque & ERP</div>
+<ul class="sidebar-nav">
+<li><a><span class="nav-icon">📦</span> Estoque de Peças <span class="nav-badge red">4</span></a></li>
+<li><a><span class="nav-icon">🔗</span> Integração ERP <span class="nav-badge green">ON</span></a></li>
+<li><a><span class="nav-icon">🛒</span> Pedidos Compra <span class="nav-badge orange">3</span></a></li>
+<li><a><span class="nav-icon">📋</span> Peças por Modelo</a></li>
+</ul>
+<div class="sidebar-section-label">Inteligência</div>
+<ul class="sidebar-nav">
+<li><a><span class="nav-icon">⭐</span> NPS & Satisfação</a></li>
+<li><a><span class="nav-icon">📈</span> Relatórios</a></li>
+<li><a><span class="nav-icon">🔔</span> Alertas <span class="nav-badge red">7</span></a></li>
+</ul>
+<div class="sidebar-section-label">Sistema</div>
+<ul class="sidebar-nav">
+<li><a><span class="nav-icon">🏷️</span> QR Codes</a></li>
+<li><a><span class="nav-icon">📧</span> E-mails Automáticos</a></li>
+<li><a><span class="nav-icon">⚙️</span> Configurações</a></li>
+</ul>
+<div class="sidebar-footer"><div class="sidebar-user"><div class="sidebar-avatar">GC</div><div><div class="sidebar-user-name">Gerente Comercial</div><div class="sidebar-user-role">Administrador</div></div></div></div>
+</aside>
+<!-- MAIN -->
+<main class="main-content">
+<!-- TOP BAR -->
+<div class="top-bar animate-in">
+<div class="top-bar-left"><h1>Painel do Fabricante</h1><p>Pós-venda + Estoque integrado via ERP — Fev 2026 &nbsp;<span class="erp-badge"><span class="erp-dot"></span> ERP Conectado (TOTVS)</span></p></div>
+<div class="top-bar-right"><button class="top-btn outline">🔄 Sincronizar ERP</button><button class="top-btn outline">📥 Exportar</button><button class="top-btn primary">+ Registrar Venda</button></div>
+</div>
+<!-- STOCK CRITICAL ALERT -->
+<div class="stock-alert-banner animate-in delay-1">
+<div class="stock-alert-icon">⚠️</div>
+<div class="stock-alert-text"><h4>4 peças em nível crítico de estoque</h4><p>Manutenções programadas nos próximos 30 dias demandam peças com estoque insuficiente. Ação de compra necessária.</p></div>
+<button class="stock-alert-action">Ver Peças Críticas →</button>
+</div>
+<!-- REVENUE BANNER -->
+<div class="revenue-banner animate-in delay-1">
+<div class="revenue-banner-left"><h3>💰 Receita Recorrente Smart Care</h3><p>Manutenção + Garantias + Peças + Contratos</p></div>
+<div class="revenue-banner-values">
+<div class="revenue-item"><div class="revenue-item-value">R$ 47.800</div><div class="revenue-item-label">Este Mês</div></div>
+<div class="revenue-item"><div class="revenue-item-value">R$ 312.400</div><div class="revenue-item-label">Acumulado 2026</div></div>
+<div class="revenue-item"><div class="revenue-item-value" style="color:var(--accent-cyan)">+23%</div><div class="revenue-item-label">vs. Mês Anterior</div></div>
+</div>
+</div>
+<!-- KPIs -->
+<div class="kpi-grid animate-in delay-2">
+<div class="kpi-card blue"><div class="kpi-header"><span class="kpi-label">Hospitais</span><span class="kpi-icon">🏥</span></div><div class="kpi-value blue">47</div><div class="kpi-sub">14 estados</div><div class="kpi-trend up">↑ +4 mês</div></div>
+<div class="kpi-card green"><div class="kpi-header"><span class="kpi-label">Equipamentos</span><span class="kpi-icon">📦</span></div><div class="kpi-value green">842</div><div class="kpi-sub">QR Code ativo</div><div class="kpi-trend up">↑ +38 mês</div></div>
+<div class="kpi-card amber"><div class="kpi-header"><span class="kpi-label">Manutenções 30d</span><span class="kpi-icon">🔧</span></div><div class="kpi-value amber">12</div><div class="kpi-sub">Próximos 30 dias</div><div class="kpi-trend down">3 atrasadas</div></div>
+<div class="kpi-card red"><div class="kpi-header"><span class="kpi-label">Garantias Vencendo</span><span class="kpi-icon">🛡️</span></div><div class="kpi-value red">18</div><div class="kpi-sub">Próx. 90 dias</div><div class="kpi-trend up">Pot: R$ 36k</div></div>
+<div class="kpi-card lime"><div class="kpi-header"><span class="kpi-label">Peças Estoque</span><span class="kpi-icon">🏭</span></div><div class="kpi-value lime">1.847</div><div class="kpi-sub">Total itens (ERP)</div><div class="kpi-trend warn">⚠️ 4 críticas</div></div>
+<div class="kpi-card orange"><div class="kpi-header"><span class="kpi-label">Pedidos Compra</span><span class="kpi-icon">🛒</span></div><div class="kpi-value orange">3</div><div class="kpi-sub">Aguardando entrega</div><div class="kpi-trend up">5-12 dias</div></div>
+<div class="kpi-card purple"><div class="kpi-header"><span class="kpi-label">Recompra</span><span class="kpi-icon">🔄</span></div><div class="kpi-value purple">8</div><div class="kpi-sub">Equip. antigos</div><div class="kpi-trend up">Pot: R$ 280k</div></div>
+<div class="kpi-card cyan"><div class="kpi-header"><span class="kpi-label">QR Scans/Mês</span><span class="kpi-icon">📱</span></div><div class="kpi-value cyan">1.247</div><div class="kpi-sub">Engajamento</div><div class="kpi-trend up">↑ +18%</div></div>
+</div>
+<!-- DEMAND VS STOCK -->
+<div class="panel animate-in delay-3">
+<div class="panel-header">
+<div class="panel-title"><span class="panel-title-icon">📦</span> Estoque vs. Demanda — Próximos 30 Dias</div>
+<div style="display:flex;align-items:center;gap:12px"><span class="erp-badge"><span class="erp-dot"></span> Tempo real (ERP)</span><button class="panel-btn" style="color:var(--accent-cyan);border-color:rgba(6,182,212,.3)">🔄 Atualizar</button></div>
+</div>
+<div class="dvs-row">
+<div><div class="dvs-part-name">Lâmpada LED Foco STARLED</div><div class="dvs-part-code">PÇ-LED-001 • Philips</div></div>
+<div class="dvs-bars"><div class="dvs-bar-row"><span class="dvs-bar-label" style="color:var(--accent-amber)">Demanda</span><div class="dvs-bar-track"><div class="dvs-bar-fill" style="width:80%;background:linear-gradient(90deg,rgba(245,158,11,.6),var(--accent-amber))">8 un</div></div></div><div class="dvs-bar-row"><span class="dvs-bar-label" style="color:var(--accent-red)">Estoque</span><div class="dvs-bar-track"><div class="dvs-bar-fill" style="width:30%;background:linear-gradient(90deg,rgba(239,68,68,.6),var(--accent-red))">3 un</div></div></div></div>
+<div class="dvs-status"><span class="status-badge danger">🔴 CRÍTICO — Faltam 5</span></div>
+</div>
+<div class="dvs-row">
+<div><div class="dvs-part-name">Motor Elétrico Cama 24V</div><div class="dvs-part-code">PÇ-MOT-012 • Linak</div></div>
+<div class="dvs-bars"><div class="dvs-bar-row"><span class="dvs-bar-label" style="color:var(--accent-amber)">Demanda</span><div class="dvs-bar-track"><div class="dvs-bar-fill" style="width:50%;background:linear-gradient(90deg,rgba(245,158,11,.6),var(--accent-amber))">5 un</div></div></div><div class="dvs-bar-row"><span class="dvs-bar-label" style="color:var(--accent-red)">Estoque</span><div class="dvs-bar-track"><div class="dvs-bar-fill" style="width:20%;background:linear-gradient(90deg,rgba(239,68,68,.6),var(--accent-red))">2 un</div></div></div></div>
+<div class="dvs-status"><span class="status-badge danger">🔴 CRÍTICO — Faltam 3</span></div>
+</div>
+<div class="dvs-row">
+<div><div class="dvs-part-name">Kit Rodízios 5" c/ Freio</div><div class="dvs-part-code">PÇ-ROD-005 • Schioppa</div></div>
+<div class="dvs-bars"><div class="dvs-bar-row"><span class="dvs-bar-label" style="color:var(--accent-amber)">Demanda</span><div class="dvs-bar-track"><div class="dvs-bar-fill" style="width:60%;background:linear-gradient(90deg,rgba(245,158,11,.6),var(--accent-amber))">12 un</div></div></div><div class="dvs-bar-row"><span class="dvs-bar-label" style="color:var(--accent-amber)">Estoque</span><div class="dvs-bar-track"><div class="dvs-bar-fill" style="width:50%;background:linear-gradient(90deg,rgba(245,158,11,.6),var(--accent-amber))">10 un</div></div></div></div>
+<div class="dvs-status"><span class="status-badge warning">⚠️ BAIXO — Faltam 2</span></div>
+</div>
+<div class="dvs-row">
+<div><div class="dvs-part-name">Cilindro Hidráulico Maca</div><div class="dvs-part-code">PÇ-HID-008 • Parker</div></div>
+<div class="dvs-bars"><div class="dvs-bar-row"><span class="dvs-bar-label" style="color:var(--accent-amber)">Demanda</span><div class="dvs-bar-track"><div class="dvs-bar-fill" style="width:40%;background:linear-gradient(90deg,rgba(245,158,11,.6),var(--accent-amber))">4 un</div></div></div><div class="dvs-bar-row"><span class="dvs-bar-label" style="color:var(--accent-red)">Estoque</span><div class="dvs-bar-track"><div class="dvs-bar-fill" style="width:10%;background:linear-gradient(90deg,rgba(239,68,68,.6),var(--accent-red))">1 un</div></div></div></div>
+<div class="dvs-status"><span class="status-badge danger">🔴 CRÍTICO — Faltam 3</span></div>
+</div>
+<div class="dvs-row">
+<div><div class="dvs-part-name">Controle Remoto Cama</div><div class="dvs-part-code">PÇ-CTR-003 • Linak</div></div>
+<div class="dvs-bars"><div class="dvs-bar-row"><span class="dvs-bar-label" style="color:var(--accent-amber)">Demanda</span><div class="dvs-bar-track"><div class="dvs-bar-fill" style="width:30%;background:linear-gradient(90deg,rgba(245,158,11,.6),var(--accent-amber))">3 un</div></div></div><div class="dvs-bar-row"><span class="dvs-bar-label" style="color:var(--accent-green)">Estoque</span><div class="dvs-bar-track"><div class="dvs-bar-fill" style="width:70%;background:linear-gradient(90deg,rgba(16,185,129,.6),var(--accent-green))">14 un</div></div></div></div>
+<div class="dvs-status"><span class="status-badge ok">✅ OK — Sobra 11</span></div>
+</div>
+<div class="dvs-row">
+<div><div class="dvs-part-name">Válvula Painel de Gases</div><div class="dvs-part-code">PÇ-VAL-019 • White Martins</div></div>
+<div class="dvs-bars"><div class="dvs-bar-row"><span class="dvs-bar-label" style="color:var(--accent-amber)">Demanda</span><div class="dvs-bar-track"><div class="dvs-bar-fill" style="width:20%;background:linear-gradient(90deg,rgba(245,158,11,.6),var(--accent-amber))">2 un</div></div></div><div class="dvs-bar-row"><span class="dvs-bar-label" style="color:var(--accent-green)">Estoque</span><div class="dvs-bar-track"><div class="dvs-bar-fill" style="width:80%;background:linear-gradient(90deg,rgba(16,185,129,.6),var(--accent-green))">18 un</div></div></div></div>
+<div class="dvs-status"><span class="status-badge ok">✅ OK — Sobra 16</span></div>
+</div>
+</div>
+<!-- PIPELINE -->
+<div class="panel animate-in delay-3">
+<div class="panel-header"><div class="panel-title"><span class="panel-title-icon">💰</span> Pipeline Receita Pós-Venda — 90 Dias</div></div>
+<div class="pipeline-stages">
+<div class="pipeline-stage" style="border-bottom:3px solid var(--accent-amber)"><div class="pipeline-stage-value" style="color:var(--accent-amber)">12</div><div class="pipeline-stage-label">Manutenções</div><div class="pipeline-stage-revenue" style="color:var(--accent-amber)">R$ 38.400</div></div>
+<div class="pipeline-stage" style="border-bottom:3px solid var(--accent-red)"><div class="pipeline-stage-value" style="color:var(--accent-red)">18</div><div class="pipeline-stage-label">Garantias</div><div class="pipeline-stage-revenue" style="color:var(--accent-red)">R$ 36.000</div></div>
+<div class="pipeline-stage" style="border-bottom:3px solid var(--accent-lime)"><div class="pipeline-stage-value" style="color:var(--accent-lime)">34</div><div class="pipeline-stage-label">Venda Peças</div><div class="pipeline-stage-revenue" style="color:var(--accent-lime)">R$ 28.600</div></div>
+<div class="pipeline-stage" style="border-bottom:3px solid var(--accent-purple)"><div class="pipeline-stage-value" style="color:var(--accent-purple)">8</div><div class="pipeline-stage-label">Recompra</div><div class="pipeline-stage-revenue" style="color:var(--accent-purple)">R$ 280.000</div></div>
+<div class="pipeline-stage" style="border-bottom:3px solid var(--accent-green)"><div class="pipeline-stage-value" style="color:var(--accent-green)">R$ 383k</div><div class="pipeline-stage-label">Total Pipeline</div><div class="pipeline-stage-revenue" style="color:var(--accent-green)">próx. 90 dias</div></div>
+</div>
+</div>
+<!-- STOCK TABLE + PURCHASE ORDERS -->
+<div class="two-col">
+<div class="panel animate-in delay-4">
+<div class="panel-header"><div class="panel-title"><span class="panel-title-icon">🚨</span> Peças Críticas — Ação de Compra</div><span class="erp-badge"><span class="erp-dot"></span> ERP Sync</span></div>
+<div class="table-wrapper"><table class="data-table"><thead><tr><th>Peça</th><th>Estoque</th><th>Demanda 30d</th><th>Status</th><th>Ação</th></tr></thead><tbody>
+<tr><td><div class="client-name">Lâmpada LED STARLED</div><div class="client-cnpj">PÇ-LED-001 • Philips</div></td><td><div class="stock-level-bar"><div class="stock-bar-track"><div class="stock-bar-fill" style="width:20%;background:var(--accent-red)"></div></div><span class="stock-qty" style="color:var(--accent-red)">3</span></div></td><td><span style="font-family:'Space Mono';font-weight:700">8</span></td><td><span class="status-badge danger">Faltam 5</span></td><td><a class="action-link" style="color:var(--accent-red)">🛒 Comprar →</a></td></tr>
+<tr><td><div class="client-name">Motor Elétrico 24V</div><div class="client-cnpj">PÇ-MOT-012 • Linak</div></td><td><div class="stock-level-bar"><div class="stock-bar-track"><div class="stock-bar-fill" style="width:15%;background:var(--accent-red)"></div></div><span class="stock-qty" style="color:var(--accent-red)">2</span></div></td><td><span style="font-family:'Space Mono';font-weight:700">5</span></td><td><span class="status-badge danger">Faltam 3</span></td><td><a class="action-link" style="color:var(--accent-red)">🛒 Comprar →</a></td></tr>
+<tr><td><div class="client-name">Cilindro Hidráulico</div><div class="client-cnpj">PÇ-HID-008 • Parker</div></td><td><div class="stock-level-bar"><div class="stock-bar-track"><div class="stock-bar-fill" style="width:10%;background:var(--accent-red)"></div></div><span class="stock-qty" style="color:var(--accent-red)">1</span></div></td><td><span style="font-family:'Space Mono';font-weight:700">4</span></td><td><span class="status-badge danger">Faltam 3</span></td><td><a class="action-link" style="color:var(--accent-red)">🛒 Comprar →</a></td></tr>
+<tr><td><div class="client-name">Kit Rodízios 5"</div><div class="client-cnpj">PÇ-ROD-005 • Schioppa</div></td><td><div class="stock-level-bar"><div class="stock-bar-track"><div class="stock-bar-fill" style="width:50%;background:var(--accent-amber)"></div></div><span class="stock-qty" style="color:var(--accent-amber)">10</span></div></td><td><span style="font-family:'Space Mono';font-weight:700">12</span></td><td><span class="status-badge warning">Faltam 2</span></td><td><a class="action-link" style="color:var(--accent-amber)">🛒 Comprar →</a></td></tr>
+</tbody></table></div>
+</div>
+<div class="panel animate-in delay-5">
+<div class="panel-header"><div class="panel-title"><span class="panel-title-icon">🛒</span> Pedidos de Compra em Andamento</div><span class="erp-badge"><span class="erp-dot"></span> ERP Sync</span></div>
+<div class="opp-list">
+<div class="opp-item"><div class="opp-icon green">📦</div><div class="opp-content"><div class="opp-title">PC-2026-089 — Lâmpadas LED STARLED (10 un)</div><div class="opp-desc">Philips • Pedido 10/02 • NF emitida</div><div class="opp-value green">🚚 Em trânsito — Prev: 18/02 (4 dias)</div></div></div>
+<div class="opp-item"><div class="opp-icon amber">⏳</div><div class="opp-content"><div class="opp-title">PC-2026-091 — Motores Linak 24V (8 un)</div><div class="opp-desc">Linak • Pedido 12/02 • Aguardando separação</div><div class="opp-value amber">⏳ Processando — Prev: 24/02 (10 dias)</div></div></div>
+<div class="opp-item"><div class="opp-icon amber">⏳</div><div class="opp-content"><div class="opp-title">PC-2026-092 — Cilindros Hidráulicos (6 un)</div><div class="opp-desc">Parker • Pedido 13/02 • Aguardando confirmação</div><div class="opp-value amber">⏳ Confirmação — Prev: 26/02 (12 dias)</div></div></div>
+</div>
+</div>
+</div>
+<!-- OPPORTUNITIES + AUTO ACTIONS -->
+<div class="two-col">
+<div class="panel animate-in delay-4">
+<div class="panel-header"><div class="panel-title"><span class="panel-title-icon">🎯</span> Oportunidades Comerciais</div></div>
+<div class="opp-list">
+<div class="opp-item"><div class="opp-icon red">🛡️</div><div class="opp-content"><div class="opp-title">Hospital São Lucas — Garantias vencendo</div><div class="opp-desc">3 Camas e 2 Focos vencem em 28 dias. E-mail enviado, sem resposta.</div><div class="opp-value amber">⚠️ Ligar: Dr. Marcos — (11) 98765-4321</div></div></div>
+<div class="opp-item"><div class="opp-icon purple">🔄</div><div class="opp-content"><div class="opp-title">Hospital Monte Sinai — Recompra Camas</div><div class="opp-desc">5 Camas com 7 anos + múltiplos chamados. Desgaste avançado.</div><div class="opp-value green">💰 Potencial: R$ 85k — Oferecer Total Fiber</div></div></div>
+<div class="opp-item"><div class="opp-icon green">📋</div><div class="opp-content"><div class="opp-title">Clínica Santa Maria — Contrato Manutenção</div><div class="opp-desc">Garantia de 4 equip. venceu. Sistema enviou oferta. Cliente abriu e-mail 3x.</div><div class="opp-value green">💰 Potencial: R$ 12k/ano — Alto interesse</div></div></div>
+<div class="opp-item"><div class="opp-icon orange">⭐</div><div class="opp-content"><div class="opp-title">Hospital Regional do Vale — Indicação</div><div class="opp-desc">NPS 10. Dr. Ricardo quer indicar Hospital Santa Casa vizinho.</div><div class="opp-value green">💰 Lead quente — Dr. Antônio (43) 99876-5432</div></div></div>
+</div>
+</div>
+<div class="panel animate-in delay-5">
+<div class="panel-header"><div class="panel-title"><span class="panel-title-icon">🤖</span> Ações Automáticas do Sistema</div><span class="status-badge cyan">Hoje</span></div>
+<div class="alert-list">
+<div class="alert-item"><div class="alert-dot red"></div><div class="alert-content"><div class="alert-text"><strong>🚨 Alerta Estoque:</strong> Lâmpada LED STARLED com 3 un (precisa 8). Pedido PC-2026-089 chega em 4 dias. Manutenções agendadas para após dia 18/02.</div><div class="alert-time">Hoje 07:00 — Automático (ERP)</div></div></div>
+<div class="alert-item"><div class="alert-dot amber"></div><div class="alert-content"><div class="alert-text"><strong>📧 E-mail enviado:</strong> Lembrete manutenção (30 dias) para Hospital São Lucas — 4 equipamentos.</div><div class="alert-time">Hoje 07:00 — Automático</div></div></div>
+<div class="alert-item"><div class="alert-dot red"></div><div class="alert-content"><div class="alert-text"><strong>📧 Garantia:</strong> Alerta 30 dias para Clínica Vida Nova — 2 Focos. Template: "Último mês de garantia".</div><div class="alert-time">Hoje 07:00 — Automático</div></div></div>
+<div class="alert-item"><div class="alert-dot green"></div><div class="alert-content"><div class="alert-text"><strong>📧 NPS enviado:</strong> Pesquisa pós-manutenção para Hosp. Regional do Vale — CH-2026-046.</div><div class="alert-time">Hoje 08:00 — Automático</div></div></div>
+<div class="alert-item"><div class="alert-dot blue"></div><div class="alert-content"><div class="alert-text"><strong>📊 Relatório:</strong> Resumo semanal gerado. 4 peças críticas, 3 garantias vencendo, 1 recompra.</div><div class="alert-time">Segunda 08:00 — Automático</div></div></div>
+<div class="alert-item"><div class="alert-dot amber"></div><div class="alert-content"><div class="alert-text"><strong>⚠️ Técnico alertado:</strong> Manutenção Hosp. São Lucas dia 20/02 — Motor 24V sem estoque. Reagendar para após 24/02 (chegada pedido).</div><div class="alert-time">Hoje 07:05 — Automático (ERP + Agenda)</div></div></div>
+</div>
+</div>
+</div>
+<!-- CLIENTS TABLE -->
+<div class="panel animate-in delay-5">
+<div class="panel-header"><div class="panel-title"><span class="panel-title-icon">🏥</span> Base de Clientes</div>
+<div class="panel-actions"><button class="panel-btn active">Todos (47)</button><button class="panel-btn" style="color:var(--accent-red)">Atenção (8)</button><button class="panel-btn" style="color:var(--accent-purple)">Recompra (5)</button></div></div>
+<div class="table-wrapper"><table class="data-table"><thead><tr><th>Hospital</th><th>Cidade/UF</th><th>Equip.</th><th>Garantias</th><th>Manutenção</th><th>NPS</th><th>Oportunidade</th><th></th></tr></thead><tbody>
+<tr><td><div class="client-name">Hospital Monte Sinai</div><div class="client-cnpj">12.345.678/0001-99</div></td><td><div class="client-city">Juiz de Fora - MG</div></td><td><span class="status-badge info">18</span></td><td><span class="status-badge danger"><span class="status-dot red"></span> 5 vencidas</span></td><td><span class="status-badge warning"><span class="status-dot amber"></span> 2 atrasadas</span></td><td><span class="status-badge ok">8</span></td><td><span class="status-badge purple">🔄 Recompra R$ 85k</span></td><td><a class="action-link">→</a></td></tr>
+<tr><td><div class="client-name">Hospital Regional do Vale</div><div class="client-cnpj">98.765.432/0001-10</div></td><td><div class="client-city">Londrina - PR</div></td><td><span class="status-badge info">24</span></td><td><span class="status-badge warning"><span class="status-dot amber"></span> 3 vencendo</span></td><td><span class="status-badge ok"><span class="status-dot green"></span> Em dia</span></td><td><span class="status-badge ok" style="background:rgba(16,185,129,.25)">10 ⭐</span></td><td><span class="status-badge orange">⭐ Indicação</span></td><td><a class="action-link">→</a></td></tr>
+<tr><td><div class="client-name">Hospital São Lucas</div><div class="client-cnpj">45.678.901/0001-23</div></td><td><div class="client-city">São Paulo - SP</div></td><td><span class="status-badge info">32</span></td><td><span class="status-badge danger"><span class="status-dot red"></span> 5 vencendo</span></td><td><span class="status-badge warning"><span class="status-dot amber"></span> 1 atrasada</span></td><td><span class="status-badge warning">7</span></td><td><span class="status-badge danger">🛡️ Garantias R$ 15k</span></td><td><a class="action-link">→</a></td></tr>
+<tr><td><div class="client-name">Hospital Albert Sabin</div><div class="client-cnpj">23.456.789/0001-45</div></td><td><div class="client-city">Curitiba - PR</div></td><td><span class="status-badge info">14</span></td><td><span class="status-badge ok"><span class="status-dot green"></span> Ativas</span></td><td><span class="status-badge ok"><span class="status-dot green"></span> Em dia</span></td><td><span class="status-badge ok" style="background:rgba(16,185,129,.25)">9 ⭐</span></td><td><span class="status-badge info">🏥 Expansão R$ 120k</span></td><td><a class="action-link">→</a></td></tr>
+<tr><td><div class="client-name">Clínica Santa Maria</div><div class="client-cnpj">34.567.890/0001-56</div></td><td><div class="client-city">Florianópolis - SC</div></td><td><span class="status-badge info">8</span></td><td><span class="status-badge danger"><span class="status-dot red"></span> 4 vencidas</span></td><td><span class="status-badge ok"><span class="status-dot green"></span> Em dia</span></td><td><span class="status-badge ok">8</span></td><td><span class="status-badge ok">📋 Contrato R$ 12k</span></td><td><a class="action-link">→</a></td></tr>
+</tbody></table></div>
+</div>
+<!-- NPS + REVENUE -->
+<div class="two-col">
+<div class="panel animate-in delay-5">
+<div class="panel-header"><div class="panel-title"><span class="panel-title-icon">⭐</span> NPS — Satisfação</div><span class="status-badge ok">Excelência</span></div>
+<div class="nps-display">
+<div class="nps-score"><div class="nps-score-value" style="color:var(--accent-green)">72</div><div class="nps-score-label">NPS Score</div></div>
+<div class="nps-breakdown">
+<div class="nps-row"><span class="nps-category" style="color:var(--accent-green)">Promotores (9-10)</span><div class="nps-bar-track"><div class="nps-bar-fill" style="width:78%;background:var(--accent-green)"></div></div><span class="nps-pct" style="color:var(--accent-green)">78%</span></div>
+<div class="nps-row"><span class="nps-category" style="color:var(--accent-amber)">Neutros (7-8)</span><div class="nps-bar-track"><div class="nps-bar-fill" style="width:16%;background:var(--accent-amber)"></div></div><span class="nps-pct" style="color:var(--accent-amber)">16%</span></div>
+<div class="nps-row"><span class="nps-category" style="color:var(--accent-red)">Detratores (0-6)</span><div class="nps-bar-track"><div class="nps-bar-fill" style="width:6%;background:var(--accent-red)"></div></div><span class="nps-pct" style="color:var(--accent-red)">6%</span></div>
+</div>
+</div>
+</div>
+<div class="panel animate-in delay-6">
+<div class="panel-header"><div class="panel-title"><span class="panel-title-icon">📊</span> Receita por Categoria</div><div class="panel-actions"><button class="panel-btn active">Mês</button><button class="panel-btn">Trimestre</button></div></div>
+<div class="bar-chart">
+<div class="bar-row"><span class="bar-label">Manutenção Preventiva</span><div class="bar-track"><div class="bar-fill green" style="width:80%">R$ 22.4k</div></div></div>
+<div class="bar-row"><span class="bar-label">Garantia Estendida</span><div class="bar-track"><div class="bar-fill blue" style="width:45%">R$ 12.6k</div></div></div>
+<div class="bar-row"><span class="bar-label">Peças & Reposição</span><div class="bar-track"><div class="bar-fill amber" style="width:30%">R$ 8.4k</div></div></div>
+<div class="bar-row"><span class="bar-label">Contratos</span><div class="bar-track"><div class="bar-fill purple" style="width:20%">R$ 4.4k</div></div></div>
+</div>
+</div>
+</div>
+<!-- PARQUE DE EQUIPAMENTOS -->
+<div class="panel animate-in delay-6">
+<div class="panel-header"><div class="panel-title"><span class="panel-title-icon">📦</span> Parque de Equipamentos — Visão Geral</div><span class="status-badge info">842 rastreados</span></div>
+<div class="bar-chart">
+<div class="bar-row"><span class="bar-label">Camas Elétricas</span><div class="bar-track"><div class="bar-fill green" style="width:85%">248</div></div></div>
+<div class="bar-row"><span class="bar-label">Focos Cirúrgicos</span><div class="bar-track"><div class="bar-fill cyan" style="width:55%">164</div></div></div>
+<div class="bar-row"><span class="bar-label">Macas Hidráulicas</span><div class="bar-track"><div class="bar-fill blue" style="width:48%">142</div></div></div>
+<div class="bar-row"><span class="bar-label">Mesas Cirúrgicas</span><div class="bar-track"><div class="bar-fill purple" style="width:30%">89</div></div></div>
+<div class="bar-row"><span class="bar-label">Poltronas</span><div class="bar-track"><div class="bar-fill amber" style="width:28%">82</div></div></div>
+<div class="bar-row"><span class="bar-label">Estativas</span><div class="bar-track"><div class="bar-fill orange" style="width:22%">64</div></div></div>
+<div class="bar-row"><span class="bar-label">Outros</span><div class="bar-track"><div class="bar-fill green" style="width:18%">53</div></div></div>
+</div>
+</div>
+<!-- FOOTER -->
+<div style="text-align:center;padding:32px 0 16px;border-top:1px solid var(--border);margin-top:12px">
+<p style="font-size:12px;color:var(--text-dim)">🏭 Smart Care — Painel do Fabricante + Estoque Integrado • Protótipo</p>
+<p style="font-size:11px;color:var(--text-dim);margin-top:4px">Integração ERP em tempo real • White-label com identidade do fabricante</p>
+</div>
+</main>
+</div>
+<script>
+document.querySelectorAll('.sidebar-nav a').forEach(l=>{l.addEventListener('click',e=>{e.preventDefault();document.querySelectorAll('.sidebar-nav a').forEach(x=>x.classList.remove('active'));l.classList.add('active')})});
+document.querySelectorAll('.panel-actions').forEach(g=>{g.querySelectorAll('.panel-btn').forEach(b=>{b.addEventListener('click',()=>{g.querySelectorAll('.panel-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active')})})});
+</script>
+</body>
+</html>
