@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Care — Painel do Fabricante</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-body: #0b0f19;
+  --bg-sidebar: #0f1423;
+  --bg-card: #1a2332;
+  --bg-card-alt: #1e293b;
+  --bg-hover: #243044;
+  --accent-blue: #3b82f6;
+  --accent-cyan: #06b6d4;
+  --accent-green: #10b981;
+  --accent-emerald: #059669;
+  --accent-red: #ef4444;
+  --accent-amber: #f59e0b;
+  --accent-purple: #8b5cf6;
+  --accent-pink: #ec4899;
+  --accent-orange: #f97316;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-dim: #475569;
+  --border: #1e293b;
+  --border-light: #334155;
+  --shadow: 0 4px 24px rgba(0,0,0,0.3);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg-body);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ===== LAYOUT ===== */
+.app-layout {
+  display: grid;
+  grid-template-columns: 272px 1fr;
+  min-height: 100vh;
+}
+
+@media (max-width: 1024px) {
+  .app-layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .sidebar.mobile-open { display: flex; position: fixed; z-index: 200; width: 280px; height: 100vh; }
+  .mobile-toggle { display: flex !important; }
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 8px 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
+.sidebar-brand-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--accent-emerald), var(--accent-cyan));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.sidebar-brand-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-green);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.sidebar-brand-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+  margin-top: 2px;
+}
+
+.sidebar-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 0 12px;
+  margin-bottom: 8px;
+  margin-top: 20px;
+}
+
+.sidebar-section-label:first-of-type { margin-top: 0; }
+
+.sidebar-nav { list-style: none; }
+
+.sidebar-nav li a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+  margin-bottom: 2px;
+  cursor: pointer;
+}
+
+.sidebar-nav li a:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+.sidebar-nav li a.active {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--accent-green);
+  font-weight: 600;
+}
+
+.sidebar-nav li a .nav-icon { font-size: 18px; width: 22px; text-align: center; }
+
+.nav-badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-family: 'Space Mono', monospace;
+}
+
+.nav-badge.red { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
+.nav-badge.amber { background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); }
+.nav-badge.green { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
+.nav-badge.blue { background: rgba(59, 130, 246, 0.2); color: var(--accent-blue); }
+.nav-badge.purple { background: rgba(139, 92, 246, 0.2); color: var(--accent-purple); }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px 8px 0;
+  border-top: 1px solid var(--border);
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+}
+
+.sidebar-avatar {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--accent-green), var(--accent-emerald));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sidebar-user-name { font-size: 13px; font-weight: 600; }
+.sidebar-user-role { font-size: 11px; color: var(--text-muted); }
+
+/* ===== MAIN CONTENT ===== */
+.main-content {
+  padding: 28px 32px;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) { .main-content { padding: 20px 16px; } }
+
+/* TOP BAR */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.top-bar-left h1 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.top-bar-left p { font-size: 13px; color: var(--text-muted); }
+
+.top-bar-right { display: flex; align-items: center; gap: 10px; }
+
+.top-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.top-btn.primary { background: var(--accent-green); color: white; }
+.top-btn.primary:hover { background: var(--accent-emerald); transform: translateY(-1px); }
+.top-btn.outline { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+.top-btn.outline:hover { border-color: var(--accent-green); color: var(--accent-green); }
+
+/* ===== REVENUE BANNER ===== */
+.revenue-banner {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(6, 182, 212, 0.08));
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.revenue-banner-left h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-green);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: 'Space Mono', monospace;
+}
+
+.revenue-banner-left p { font-size: 13px; color: var(--text-secondary); }
+
+.revenue-banner-values {
+  display: flex;
+  gap: 32px;
+}
+
+.revenue-item { text-align: center; }
+
+.revenue-item-value {
+  font-family: 'Space Mono', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent-green);
+}
+
+.revenue-item-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ===== KPI CARDS ===== */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+}
+
+.kpi-card.blue::before { background: var(--accent-blue); }
+.kpi-card.green::before { background: var(--accent-green); }
+.kpi-card.amber::before { background: var(--accent-amber); }
+.kpi-card.red::before { background: var(--accent-red); }
+.kpi-card.purple::before { background: var(--accent-purple); }
+.kpi-card.cyan::before { background: var(--accent-cyan); }
+.kpi-card.orange::before { background: var(--accent-orange); }
+
+.kpi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.kpi-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.kpi-icon { font-size: 18px; }
+
+.kpi-value {
+  font-family: 'Space Mono', monospace;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.kpi-value.blue { color: var(--accent-blue); }
+.kpi-value.green { color: var(--accent-green); }
+.kpi-value.amber { color: var(--accent-amber); }
+.kpi-value.red { color: var(--accent-red); }
+.kpi-value.purple { color: var(--accent-purple); }
+.kpi-value.cyan { color: var(--accent-cyan); }
+.kpi-value.orange { color: var(--accent-orange); }
+
+.kpi-sub { font-size: 11px; color: var(--text-dim); }
+
+.kpi-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 100px;
+  margin-top: 6px;
+}
+
+.kpi-trend.up { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+.kpi-trend.down { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+
+/* ===== PANELS ===== */
+.panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.panel-title {
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-title-icon { font-size: 18px; }
+
+.panel-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.panel-btn {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.panel-btn:hover { border-color: var(--accent-green); color: var(--accent-green); }
+.panel-btn.active { background: rgba(16, 185, 129, 0.12); border-color: var(--accent-green); color: var(--accent-green); }
+
+/* ===== TABLE ===== */
+.table-wrapper { overflow-x: auto; }
+
+.data-table { width: 100%; border-collapse: collapse; }
+
+.data-table th {
+  text-align: left;
+  padding: 12px 18px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: rgba(0,0,0,0.2);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 13px 18px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: rgba(16, 185, 129, 0.03); }
+
+/* STATUS BADGES */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.status-badge.ok { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+.status-badge.warning { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); }
+.status-badge.danger { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+.status-badge.info { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+.status-badge.purple { background: rgba(139, 92, 246, 0.15); color: var(--accent-purple); }
+.status-badge.orange { background: rgba(249, 115, 22, 0.15); color: var(--accent-orange); }
+.status-badge.cyan { background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); }
+
+.status-dot { width: 6px; height: 6px; border-radius: 50%; }
+.status-dot.green { background: var(--accent-green); }
+.status-dot.amber { background: var(--accent-amber); }
+.status-dot.red { background: var(--accent-red); }
+
+.action-link {
+  font-size: 12px;
+  color: var(--accent-green);
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.action-link:hover { color: var(--accent-cyan); }
+
+/* CLIENT ROW */
+.client-name { font-weight: 600; color: var(--text-primary); }
+.client-cnpj { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+.client-city { font-size: 12px; color: var(--text-secondary); }
+
+/* ===== GRID LAYOUTS ===== */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.three-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 1100px) { .three-col { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+/* ===== OPPORTUNITY CARDS ===== */
+.opp-list { padding: 8px 16px; }
+
+.opp-item {
+  display: flex;
+  gap: 14px;
+  padding: 14px 8px;
+  border-bottom: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.opp-item:last-child { border-bottom: none; }
+.opp-item:hover { background: var(--bg-hover); }
+
+.opp-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.opp-icon.amber { background: rgba(245, 158, 11, 0.15); }
+.opp-icon.red { background: rgba(239, 68, 68, 0.15); }
+.opp-icon.green { background: rgba(16, 185, 129, 0.15); }
+.opp-icon.blue { background: rgba(59, 130, 246, 0.15); }
+.opp-icon.purple { background: rgba(139, 92, 246, 0.15); }
+.opp-icon.orange { background: rgba(249, 115, 22, 0.15); }
+
+.opp-content { flex: 1; }
+.opp-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+.opp-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.opp-value { font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; margin-top: 4px; }
+.opp-value.green { color: var(--accent-green); }
+.opp-value.amber { color: var(--accent-amber); }
+.opp-value.red { color: var(--accent-red); }
+
+/* ===== BAR CHART ===== */
+.bar-chart { display: flex; flex-direction: column; gap: 10px; padding: 20px 24px; }
+
+.bar-row { display: flex; align-items: center; gap: 12px; }
+.bar-label { font-size: 12px; color: var(--text-secondary); min-width: 130px; text-align: right; }
+
+.bar-track {
+  flex: 1;
+  height: 22px;
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'Space Mono', monospace;
+  color: white;
+  transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bar-fill.green { background: linear-gradient(90deg, rgba(16,185,129,0.6), var(--accent-green)); }
+.bar-fill.blue { background: linear-gradient(90deg, rgba(59,130,246,0.6), var(--accent-blue)); }
+.bar-fill.cyan { background: linear-gradient(90deg, rgba(6,182,212,0.6), var(--accent-cyan)); }
+.bar-fill.amber { background: linear-gradient(90deg, rgba(245,158,11,0.6), var(--accent-amber)); }
+.bar-fill.purple { background: linear-gradient(90deg, rgba(139,92,246,0.6), var(--accent-purple)); }
+.bar-fill.orange { background: linear-gradient(90deg, rgba(249,115,22,0.6), var(--accent-orange)); }
+
+/* ===== NPS SECTION ===== */
+.nps-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 28px 24px;
+}
+
+.nps-score {
+  text-align: center;
+}
+
+.nps-score-value {
+  font-family: 'Space Mono', monospace;
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.nps-score-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+.nps-breakdown { display: flex; flex-direction: column; gap: 12px; }
+
+.nps-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nps-category {
+  font-size: 12px;
+  min-width: 100px;
+  text-align: right;
+}
+
+.nps-bar-track {
+  width: 140px;
+  height: 8px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.nps-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+}
+
+.nps-pct {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 40px;
+}
+
+/* ===== ALERTS PANEL ===== */
+.alert-list { padding: 8px 16px; }
+
+.alert-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+  transition: background 0.2s;
+}
+
+.alert-item:last-child { border-bottom: none; }
+.alert-item:hover { background: var(--bg-hover); }
+
+.alert-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.alert-dot.red { background: var(--accent-red); }
+.alert-dot.amber { background: var(--accent-amber); }
+.alert-dot.green { background: var(--accent-green); }
+.alert-dot.blue { background: var(--accent-blue); }
+
+.alert-content { flex: 1; }
+.alert-text { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+.alert-text strong { color: var(--text-primary); }
+.alert-time { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
+
+/* ===== PIPELINE MINI ===== */
+.pipeline-stages {
+  display: flex;
+  gap: 2px;
+  padding: 20px 24px;
+}
+
+.pipeline-stage {
+  flex: 1;
+  text-align: center;
+  padding: 16px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card-alt);
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.pipeline-stage:hover { transform: translateY(-2px); }
+
+.pipeline-stage-value {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.pipeline-stage-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pipeline-stage-revenue {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in { animation: fadeIn 0.5s ease both; }
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.1s; }
+.delay-3 { animation-delay: 0.15s; }
+.delay-4 { animation-delay: 0.2s; }
+.delay-5 { animation-delay: 0.25s; }
+.delay-6 { animation-delay: 0.3s; }
+
+/* WATERMARK */
+.demo-watermark {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  color: var(--accent-green);
+  font-weight: 600;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+</style>
+</head>
+<body>
+
+<div class="demo-watermark">🏭 SMART CARE — Painel do Fabricante (Protótipo)</div>
+
+<div class="app-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">🏭</div>
+      <div>
+        <div class="sidebar-brand-text">Smart Care</div>
+        <div class="sidebar-brand-sub">Painel do Fabricante</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section-label">Visão Geral</div>
+    <ul class="sidebar-nav">
+      <li><a class="active"><span class="nav-icon">📊</span> Dashboard</a></li>
+      <li><a><span class="nav-icon">💰</span> Receita Recorrente <span class="nav-badge green">+23%</span></a></li>
+      <li><a><span class="nav-icon">🏥</span> Clientes (Hospitais) <span class="nav-badge blue">47</span></a></li>
+    </ul>
+
+    <div class="sidebar-section-label">Comercial</div>
+    <ul class="sidebar-nav">
+      <li><a><span class="nav-icon">🔧</span> Manutenções <span class="nav-badge amber">12</span></a></li>
+      <li><a><span class="nav-icon">🛡️</span> Garantias Vencendo <span class="nav-badge red">18</span></a></li>
+      <li><a><span class="nav-icon">🔄</span> Oportunidades Recompra <span class="nav-badge purple">8</span></a></li>
+      <li><a><span class="nav-icon">📝</span> Chamados <span class="nav-badge amber">5</span></a></li>
+    </ul>
+
+    <div class="sidebar-section-label">Inteligência</div>
+    <ul class="sidebar-nav">
+      <li><a><span class="nav-icon">⭐</span> NPS & Satisfação</a></li>
+      <li><a><span class="nav-icon">📈</span> Relatórios</a></li>
+      <li><a><span class="nav-icon">📦</span> Equipamentos <span class="nav-badge blue">842</span></a></li>
+      <li><a><span class="nav-icon">🔔</span> Alertas <span class="nav-badge red">7</span></a></li>
+    </ul>
+
+    <div class="sidebar-section-label">Sistema</div>
+    <ul class="sidebar-nav">
+      <li><a><span class="nav-icon">🏷️</span> QR Codes</a></li>
+      <li><a><span class="nav-icon">📧</span> E-mails Automáticos</a></li>
+      <li><a><span class="nav-icon">⚙️</span> Configurações</a></li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">GC</div>
+        <div>
+          <div class="sidebar-user-name">Gerente Comercial</div>
+          <div class="sidebar-user-role">Administrador</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- TOP BAR -->
+    <div class="top-bar animate-in">
+      <div class="top-bar-left">
+        <h1>Painel do Fabricante</h1>
+        <p>Visão geral da operação de pós-venda — Fevereiro 2026</p>
+      </div>
+      <div class="top-bar-right">
+        <button class="top-btn outline">📥 Exportar Relatório</button>
+        <button class="top-btn outline">📧 Resumo Semanal</button>
+        <button class="top-btn primary">+ Registrar Venda</button>
+      </div>
+    </div>
+
+    <!-- REVENUE BANNER -->
+    <div class="revenue-banner animate-in delay-1">
+      <div class="revenue-banner-left">
+        <h3>💰 Receita Recorrente Gerada pelo Smart Care</h3>
+        <p>Receita de serviços pós-venda que não existia antes do sistema</p>
+      </div>
+      <div class="revenue-banner-values">
+        <div class="revenue-item">
+          <div class="revenue-item-value">R$ 47.800</div>
+          <div class="revenue-item-label">Este Mês</div>
+        </div>
+        <div class="revenue-item">
+          <div class="revenue-item-value">R$ 312.400</div>
+          <div class="revenue-item-label">Acumulado 2026</div>
+        </div>
+        <div class="revenue-item">
+          <div class="revenue-item-value" style="color: var(--accent-cyan);">+23%</div>
+          <div class="revenue-item-label">vs. Mês Anterior</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid animate-in delay-2">
+      <div class="kpi-card blue">
+        <div class="kpi-header">
+          <span class="kpi-label">Hospitais Ativos</span>
+          <span class="kpi-icon">🏥</span>
+        </div>
+        <div class="kpi-value blue">47</div>
+        <div class="kpi-sub">Em 14 estados</div>
+        <div class="kpi-trend up">↑ +4 este mês</div>
+      </div>
+
+      <div class="kpi-card green">
+        <div class="kpi-header">
+          <span class="kpi-label">Equipamentos Rastreados</span>
+          <span class="kpi-icon">📦</span>
+        </div>
+        <div class="kpi-value green">842</div>
+        <div class="kpi-sub">Com QR Code ativo</div>
+        <div class="kpi-trend up">↑ +38 este mês</div>
+      </div>
+
+      <div class="kpi-card amber">
+        <div class="kpi-header">
+          <span class="kpi-label">Manutenções Pendentes</span>
+          <span class="kpi-icon">🔧</span>
+        </div>
+        <div class="kpi-value amber">12</div>
+        <div class="kpi-sub">Próximos 30 dias</div>
+        <div class="kpi-trend down">3 atrasadas</div>
+      </div>
+
+      <div class="kpi-card red">
+        <div class="kpi-header">
+          <span class="kpi-label">Garantias Vencendo</span>
+          <span class="kpi-icon">🛡️</span>
+        </div>
+        <div class="kpi-value red">18</div>
+        <div class="kpi-sub">Próximos 90 dias</div>
+        <div class="kpi-trend up">Oportunidade: R$ 36k</div>
+      </div>
+
+      <div class="kpi-card purple">
+        <div class="kpi-header">
+          <span class="kpi-label">Recompra Identificada</span>
+          <span class="kpi-icon">🔄</span>
+        </div>
+        <div class="kpi-value purple">8</div>
+        <div class="kpi-sub">Hospitais com equip. antigo</div>
+        <div class="kpi-trend up">Potencial: R$ 280k</div>
+      </div>
+
+      <div class="kpi-card cyan">
+        <div class="kpi-header">
+          <span class="kpi-label">Scans QR Code / Mês</span>
+          <span class="kpi-icon">📱</span>
+        </div>
+        <div class="kpi-value cyan">1.247</div>
+        <div class="kpi-sub">Engajamento hospitais</div>
+        <div class="kpi-trend up">↑ +18% vs. Jan</div>
+      </div>
+
+      <div class="kpi-card orange">
+        <div class="kpi-header">
+          <span class="kpi-label">Chamados Abertos</span>
+          <span class="kpi-icon">📝</span>
+        </div>
+        <div class="kpi-value orange">5</div>
+        <div class="kpi-sub">Tempo médio: 4.2h</div>
+        <div class="kpi-trend up">Resolvidos mês: 23</div>
+      </div>
+    </div>
+
+    <!-- PIPELINE DE RECEITA PÓS-VENDA -->
+    <div class="panel animate-in delay-3">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-title-icon">💰</span> Pipeline de Receita Pós-Venda — Próximos 90 Dias</div>
+      </div>
+      <div class="pipeline-stages">
+        <div class="pipeline-stage" style="border-bottom: 3px solid var(--accent-amber);">
+          <div class="pipeline-stage-value" style="color: var(--accent-amber);">12</div>
+          <div class="pipeline-stage-label">Manutenções Preventivas</div>
+          <div class="pipeline-stage-revenue" style="color: var(--accent-amber);">R$ 38.400</div>
+        </div>
+        <div class="pipeline-stage" style="border-bottom: 3px solid var(--accent-red);">
+          <div class="pipeline-stage-value" style="color: var(--accent-red);">18</div>
+          <div class="pipeline-stage-label">Garantias p/ Renovar</div>
+          <div class="pipeline-stage-revenue" style="color: var(--accent-red);">R$ 36.000</div>
+        </div>
+        <div class="pipeline-stage" style="border-bottom: 3px solid var(--accent-purple);">
+          <div class="pipeline-stage-value" style="color: var(--accent-purple);">8</div>
+          <div class="pipeline-stage-label">Oport. de Recompra</div>
+          <div class="pipeline-stage-revenue" style="color: var(--accent-purple);">R$ 280.000</div>
+        </div>
+        <div class="pipeline-stage" style="border-bottom: 3px solid var(--accent-blue);">
+          <div class="pipeline-stage-value" style="color: var(--accent-blue);">6</div>
+          <div class="pipeline-stage-label">Contratos Novos</div>
+          <div class="pipeline-stage-revenue" style="color: var(--accent-blue);">R$ 72.000</div>
+        </div>
+        <div class="pipeline-stage" style="border-bottom: 3px solid var(--accent-green);">
+          <div class="pipeline-stage-value" style="color: var(--accent-green);">R$ 426k</div>
+          <div class="pipeline-stage-label">Total Pipeline</div>
+          <div class="pipeline-stage-revenue" style="color: var(--accent-green);">próx. 90 dias</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TWO COLUMNS: OPPORTUNITIES + ALERTS -->
+    <div class="two-col">
+
+      <!-- COMMERCIAL OPPORTUNITIES -->
+      <div class="panel animate-in delay-4">
+        <div class="panel-header">
+          <div class="panel-title"><span class="panel-title-icon">🎯</span> Oportunidades Comerciais</div>
+          <span class="status-badge ok">Ação necessária</span>
+        </div>
+        <div class="opp-list">
+          <div class="opp-item">
+            <div class="opp-icon red">🛡️</div>
+            <div class="opp-content">
+              <div class="opp-title">Hospital São Lucas — Garantias vencendo</div>
+              <div class="opp-desc">3 Camas Elétricas e 2 Focos vencem em 28 dias. E-mail automático enviado. Cliente não respondeu.</div>
+              <div class="opp-value amber">⚠️ Ligar para Dr. Marcos — (11) 98765-4321</div>
+            </div>
+          </div>
+          <div class="opp-item">
+            <div class="opp-icon purple">🔄</div>
+            <div class="opp-content">
+              <div class="opp-title">Hospital Monte Sinai — Recompra de Camas</div>
+              <div class="opp-desc">5 Camas Elétricas instaladas em 2019 (7 anos). Múltiplos chamados corretivos no último semestre. Sinal de desgaste avançado.</div>
+              <div class="opp-value green">💰 Potencial: R$ 85.000 — Oferecer upgrade Total Fiber</div>
+            </div>
+          </div>
+          <div class="opp-item">
+            <div class="opp-icon green">📋</div>
+            <div class="opp-content">
+              <div class="opp-title">Clínica Santa Maria — Contrato de Manutenção</div>
+              <div class="opp-desc">Garantia de 4 equipamentos venceu mês passado. Sistema enviou oferta de plano. Cliente abriu o e-mail 3x.</div>
+              <div class="opp-value green">💰 Potencial: R$ 12.000/ano — Alto interesse</div>
+            </div>
+          </div>
+          <div class="opp-item">
+            <div class="opp-icon orange">⭐</div>
+            <div class="opp-content">
+              <div class="opp-title">Hospital Regional do Vale — Indicação</div>
+              <div class="opp-desc">NPS 10. Dr. Ricardo ofereceu indicar para Hospital Santa Casa da cidade vizinha. Gerar código de indicação.</div>
+              <div class="opp-value green">💰 Lead quente — Contato: Dr. Antônio (43) 99876-5432</div>
+            </div>
+          </div>
+          <div class="opp-item">
+            <div class="opp-icon blue">🏥</div>
+            <div class="opp-content">
+              <div class="opp-title">Hospital Albert Sabin — Expansão</div>
+              <div class="opp-desc">Comprou 3 mesas cirúrgicas em 2025. Satisfação alta. Está ampliando ala cirúrgica — precisa de mais 2 mesas + focos.</div>
+              <div class="opp-value green">💰 Potencial: R$ 120.000 — Enviar proposta</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALERTS & AUTOMATED ACTIONS -->
+      <div class="panel animate-in delay-5">
+        <div class="panel-header">
+          <div class="panel-title"><span class="panel-title-icon">🤖</span> Ações Automáticas do Sistema</div>
+          <span class="status-badge cyan">Hoje</span>
+        </div>
+        <div class="alert-list">
+          <div class="alert-item">
+            <div class="alert-dot amber"></div>
+            <div class="alert-content">
+              <div class="alert-text"><strong>📧 E-mail enviado:</strong> Lembrete de manutenção (30 dias) para Hospital São Lucas — 4 equipamentos. Template: "Revisão preventiva se aproximando".</div>
+              <div class="alert-time">Hoje 07:00 — Automático</div>
+            </div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-dot red"></div>
+            <div class="alert-content">
+              <div class="alert-text"><strong>📧 E-mail enviado:</strong> Alerta de garantia (30 dias) para Clínica Vida Nova — 2 Focos Cirúrgicos. Template: "Último mês de garantia".</div>
+              <div class="alert-time">Hoje 07:00 — Automático</div>
+            </div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-dot green"></div>
+            <div class="alert-content">
+              <div class="alert-text"><strong>📧 NPS enviado:</strong> Pesquisa de satisfação pós-manutenção para Hospital Regional do Vale — Chamado CH-2026-046 resolvido ontem.</div>
+              <div class="alert-time">Hoje 08:00 — Automático</div>
+            </div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-dot blue"></div>
+            <div class="alert-content">
+              <div class="alert-text"><strong>📊 Relatório gerado:</strong> Resumo semanal para equipe comercial. 3 garantias vencendo, 2 manutenções atrasadas, 1 oportunidade de recompra.</div>
+              <div class="alert-time">Segunda 08:00 — Automático</div>
+            </div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-dot green"></div>
+            <div class="alert-content">
+              <div class="alert-text"><strong>🏷️ QR Codes gerados:</strong> 38 novos QR Codes criados para equipamentos vendidos em Janeiro. Prontos para impressão na pasta do Drive.</div>
+              <div class="alert-time">01/02 09:00 — Automático</div>
+            </div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-dot amber"></div>
+            <div class="alert-content">
+              <div class="alert-text"><strong>⚠️ Alerta checklist:</strong> Hospital São Marcos — 3 equipamentos sem checklist há 5 dias. Possível problema de adesão. Sugestão: contatar engenheiro clínico.</div>
+              <div class="alert-time">Ontem 22:00 — Automático</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CLIENTS TABLE -->
+    <div class="panel animate-in delay-4">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-title-icon">🏥</span> Base de Clientes — Hospitais</div>
+        <div class="panel-actions">
+          <button class="panel-btn active">Todos (47)</button>
+          <button class="panel-btn" style="color: var(--accent-red);">Atenção (8)</button>
+          <button class="panel-btn" style="color: var(--accent-purple);">Recompra (5)</button>
+          <button class="panel-btn" style="color: var(--accent-green);">Promotores (22)</button>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Hospital</th>
+              <th>Cidade/UF</th>
+              <th>Equipamentos</th>
+              <th>Garantias</th>
+              <th>Manutenção</th>
+              <th>NPS</th>
+              <th>Oportunidade</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="client-name">Hospital Monte Sinai</div>
+                <div class="client-cnpj">12.345.678/0001-99</div>
+              </td>
+              <td><div class="client-city">Juiz de Fora - MG</div></td>
+              <td><span class="status-badge info">18 equip.</span></td>
+              <td><span class="status-badge danger"><span class="status-dot red"></span> 5 vencidas</span></td>
+              <td><span class="status-badge warning"><span class="status-dot amber"></span> 2 atrasadas</span></td>
+              <td><span class="status-badge ok">NPS 8</span></td>
+              <td><span class="status-badge purple">🔄 Recompra R$ 85k</span></td>
+              <td><a class="action-link">Abrir →</a></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="client-name">Hospital Regional do Vale</div>
+                <div class="client-cnpj">98.765.432/0001-10</div>
+              </td>
+              <td><div class="client-city">Londrina - PR</div></td>
+              <td><span class="status-badge info">24 equip.</span></td>
+              <td><span class="status-badge warning"><span class="status-dot amber"></span> 3 vencendo</span></td>
+              <td><span class="status-badge ok"><span class="status-dot green"></span> Em dia</span></td>
+              <td><span class="status-badge ok" style="background: rgba(16,185,129,0.25);">NPS 10 ⭐</span></td>
+              <td><span class="status-badge orange">⭐ Indicação</span></td>
+              <td><a class="action-link">Abrir →</a></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="client-name">Hospital São Lucas</div>
+                <div class="client-cnpj">45.678.901/0001-23</div>
+              </td>
+              <td><div class="client-city">São Paulo - SP</div></td>
+              <td><span class="status-badge info">32 equip.</span></td>
+              <td><span class="status-badge danger"><span class="status-dot red"></span> 5 vencendo</span></td>
+              <td><span class="status-badge warning"><span class="status-dot amber"></span> 1 atrasada</span></td>
+              <td><span class="status-badge warning">NPS 7</span></td>
+              <td><span class="status-badge danger">🛡️ Garantias R$ 15k</span></td>
+              <td><a class="action-link">Abrir →</a></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="client-name">Hospital Albert Sabin</div>
+                <div class="client-cnpj">23.456.789/0001-45</div>
+              </td>
+              <td><div class="client-city">Curitiba - PR</div></td>
+              <td><span class="status-badge info">14 equip.</span></td>
+              <td><span class="status-badge ok"><span class="status-dot green"></span> Todas ativas</span></td>
+              <td><span class="status-badge ok"><span class="status-dot green"></span> Em dia</span></td>
+              <td><span class="status-badge ok" style="background: rgba(16,185,129,0.25);">NPS 9 ⭐</span></td>
+              <td><span class="status-badge info">🏥 Expansão R$ 120k</span></td>
+              <td><a class="action-link">Abrir →</a></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="client-name">Clínica Santa Maria</div>
+                <div class="client-cnpj">34.567.890/0001-56</div>
+              </td>
+              <td><div class="client-city">Florianópolis - SC</div></td>
+              <td><span class="status-badge info">8 equip.</span></td>
+              <td><span class="status-badge danger"><span class="status-dot red"></span> 4 vencidas</span></td>
+              <td><span class="status-badge ok"><span class="status-dot green"></span> Em dia</span></td>
+              <td><span class="status-badge ok">NPS 8</span></td>
+              <td><span class="status-badge ok">📋 Contrato R$ 12k/ano</span></td>
+              <td><a class="action-link">Abrir →</a></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="client-name">Hospital Ruth Cardoso</div>
+                <div class="client-cnpj">56.789.012/0001-78</div>
+              </td>
+              <td><div class="client-city">Balneário Camboriú - SC</div></td>
+              <td><span class="status-badge info">21 equip.</span></td>
+              <td><span class="status-badge ok"><span class="status-dot green"></span> Todas ativas</span></td>
+              <td><span class="status-badge ok"><span class="status-dot green"></span> Em dia</span></td>
+              <td><span class="status-badge ok" style="background: rgba(16,185,129,0.25);">NPS 10 ⭐</span></td>
+              <td><span class="status-badge cyan">✅ Estável</span></td>
+              <td><a class="action-link">Abrir →</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TWO COLUMNS: NPS + REVENUE BY CATEGORY -->
+    <div class="two-col">
+
+      <!-- NPS -->
+      <div class="panel animate-in delay-5">
+        <div class="panel-header">
+          <div class="panel-title"><span class="panel-title-icon">⭐</span> NPS — Satisfação dos Clientes</div>
+          <span class="status-badge ok">Zona de Excelência</span>
+        </div>
+        <div class="nps-display">
+          <div class="nps-score">
+            <div class="nps-score-value" style="color: var(--accent-green);">72</div>
+            <div class="nps-score-label">NPS Score</div>
+          </div>
+          <div class="nps-breakdown">
+            <div class="nps-row">
+              <span class="nps-category" style="color: var(--accent-green);">Promotores (9-10)</span>
+              <div class="nps-bar-track"><div class="nps-bar-fill" style="width: 78%; background: var(--accent-green);"></div></div>
+              <span class="nps-pct" style="color: var(--accent-green);">78%</span>
+            </div>
+            <div class="nps-row">
+              <span class="nps-category" style="color: var(--accent-amber);">Neutros (7-8)</span>
+              <div class="nps-bar-track"><div class="nps-bar-fill" style="width: 16%; background: var(--accent-amber);"></div></div>
+              <span class="nps-pct" style="color: var(--accent-amber);">16%</span>
+            </div>
+            <div class="nps-row">
+              <span class="nps-category" style="color: var(--accent-red);">Detratores (0-6)</span>
+              <div class="nps-bar-track"><div class="nps-bar-fill" style="width: 6%; background: var(--accent-red);"></div></div>
+              <span class="nps-pct" style="color: var(--accent-red);">6%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REVENUE BY CATEGORY -->
+      <div class="panel animate-in delay-6">
+        <div class="panel-header">
+          <div class="panel-title"><span class="panel-title-icon">📊</span> Receita Pós-Venda por Categoria</div>
+          <div class="panel-actions">
+            <button class="panel-btn active">Este Mês</button>
+            <button class="panel-btn">Trimestre</button>
+          </div>
+        </div>
+        <div class="bar-chart">
+          <div class="bar-row">
+            <span class="bar-label">Manutenção Preventiva</span>
+            <div class="bar-track"><div class="bar-fill green" style="width: 80%;">R$ 22.4k</div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Garantia Estendida</span>
+            <div class="bar-track"><div class="bar-fill blue" style="width: 45%;">R$ 12.6k</div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Peças & Reposição</span>
+            <div class="bar-track"><div class="bar-fill amber" style="width: 30%;">R$ 8.4k</div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Contratos de Manutenção</span>
+            <div class="bar-track"><div class="bar-fill purple" style="width: 20%;">R$ 4.4k</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- EQUIPMENT RANKING -->
+    <div class="panel animate-in delay-5">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-title-icon">📦</span> Parque de Equipamentos — Visão Geral</div>
+      </div>
+      <div class="bar-chart">
+        <div class="bar-row">
+          <span class="bar-label">Camas Elétricas</span>
+          <div class="bar-track"><div class="bar-fill green" style="width: 85%;">248</div></div>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Focos Cirúrgicos</span>
+          <div class="bar-track"><div class="bar-fill cyan" style="width: 55%;">164</div></div>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Macas Hidráulicas</span>
+          <div class="bar-track"><div class="bar-fill blue" style="width: 48%;">142</div></div>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Mesas Cirúrgicas</span>
+          <div class="bar-track"><div class="bar-fill purple" style="width: 30%;">89</div></div>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Poltronas</span>
+          <div class="bar-track"><div class="bar-fill amber" style="width: 28%;">82</div></div>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Estativas</span>
+          <div class="bar-track"><div class="bar-fill orange" style="width: 22%;">64</div></div>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Outros</span>
+          <div class="bar-track"><div class="bar-fill green" style="width: 18%;">53</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="text-align: center; padding: 32px 0 16px; border-top: 1px solid var(--border); margin-top: 12px;">
+      <p style="font-size: 12px; color: var(--text-dim);">🏭 Smart Care — Painel do Fabricante • Protótipo Demonstrativo</p>
+      <p style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">Sistema white-label personalizado com a identidade visual do fabricante</p>
+    </div>
+
+  </main>
+</div>
+
+<script>
+document.querySelectorAll('.sidebar-nav a').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.querySelectorAll('.sidebar-nav a').forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+  });
+});
+
+document.querySelectorAll('.panel-actions').forEach(group => {
+  group.querySelectorAll('.panel-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      group.querySelectorAll('.panel-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+});
+</script>
+</body>
+</html>
